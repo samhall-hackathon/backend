@@ -11,11 +11,7 @@ def root():
     return {"message": "Hello World"}
 
 
-@app.post("/contract")
+@app.post("/contract", response_model=Contract)
 def contract(file: Annotated[bytes, File()]):
-    import pdb; pdb.set_trace()
-
     mime = magic.Magic(mime=True)
-
-    output = parse_contract(file, mime.from_buffer(file))
-    return Contract.model_dump(output)
+    return parse_contract(file, mime.from_buffer(file))
