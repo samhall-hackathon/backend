@@ -1,0 +1,76 @@
+Anställningsnummer;Namn;Anställningsgrad;Kompetenser;Kapacitetsfaktor;Grupp
+1001;Maria Lindqvist;1,0;Städ,BL;0,95;Grupp Centrum V
+1002;Ahmed Hassan;1,0;Städ;0,90;Grupp Centrum Ö
+1003;Erik Johansson;1,0;Städ,BL,Övriga tjänster;1,00;Grupp Flygstaden
+1004;Fatima Al-Rashid;0,75;Städ;0,85;Grupp Hallarna
+1005;Lars Petersson;1,0;Städ,Fastighet;0,92;Grupp Laholm
+1006;Yuki Tanaka;1,0;Städ;0,45;Grupp Norr
+1007;Björn Ekström;0,5;Städ;0,88;Grupp Nyhem Bilgrupp
+1008;Amina Osman;1,0;Städ,BL;0,78;Grupp ICA/Bilgrupp
+1009;Karl-Erik Sundberg;1,0;Övriga tjänster;0,95;Grupp Cafeterian
+1010;Linnéa Bergman;1,0;Städ;0,22;Grupp Stena Norr
+1011;Mohammed Al-Farsi;1,0;BL;0,91;Grupp Stena Södra
+1012;Anna-Karin Holm;0,75;Städ;0,87;Grupp Övrigt BL
+1013;Viktor Nilsson;1,0;Städ,BL;0,65;Grupp Centrum V
+1014;Esperanza Rodriguez;1,0;Städ;0,93;Grupp Centrum V
+1015;Gustav Månsson;1,0;Städ;0,15;Grupp Centrum Ö+
+1016;Priya Sharma;1,0;Städ,BL;0,89;Grupp Flygstaden
+1017;Oskar Lund;0,5;Städ;0,75;Grupp Hallarna
+1018;Zahra Ahmadi;1,0;Städ;0,82;Grupp Hallarna
+1019;Ingrid Söderström;1,0;Städ,Fastighet;0,96;Grupp Laholm
+1020;Chen Wei;1,0;Städ;0,55;Grupp Norr
+1021;Mikael Franzén;1,0;Städ,BL;0,88;Grupp Norr
+1022;Svetlana Kovacs;0,75;Städ;0,79;Grupp Nyhem Bilgrupp
+1023;Anders Blom;1,0;Städ;0,94;Grupp ICA/Bilgrupp
+1024;Jasmine Okonkwo;1,0;Övriga tjänster;0,35;Grupp Cafeterian
+1025;Per-Olof Strand;1,0;Övriga tjänster;0,97;Grupp Cafeterian
+1026;Elena Popov;1,0;Städ,Övriga tjänster;0,86;Grupp Cafeterian
+1027;Tommy Karlsson;1,0;BL;0,92;Grupp Stena Norr
+1028;Aisha Diallo;1,0;BL;0,28;Grupp Stena Södra
+1029;Stefan Holmgren;0,5;BL;0,90;Grupp Stena Södra
+1030;Mei-Lin Chang;1,0;BL;0,84;Grupp Stena Södra
+1031;Johan Åkesson;1,0;Städ,BL;0,91;Grupp Centrum V
+1032;Rosa Martinez;1,0;Städ;0,72;Grupp Centrum Ö
+1033;Nils Hedlund;1,0;Städ;0,18;Grupp Flygstaden
+1034;Kadija Ibrahim;1,0;Städ;0,88;Grupp Flygstaden
+1035;Ulf Bergström;0,75;Städ;0,93;Grupp Hallarna
+1036;Linh Nguyen;1,0;Städ;0,81;Grupp Laholm
+1037;Katarina Sjöberg;1,0;Städ,BL;0,95;Grupp Norr
+1038;David Osei;1,0;Städ;0,42;Grupp Nyhem Bilgrupp
+1039;Margareta Wallin;1,0;Städ;0,89;Grupp ICA/Bilgrupp
+1040;Hassan Youssef;1,0;Övriga tjänster;0,76;Grupp Cafeterian
+1041;Birgitta Lundgren;0,5;Övriga tjänster;0,98;Grupp Cafeterian
+1042;Patrik Ek;1,0;BL;0,87;Grupp Stena Norr
+1043;Olga Pettersson;1,0;BL;0,58;Grupp Stena Södra
+1044;Daniel Wikström;1,0;BL;0,94;Grupp Övrigt BL
+1045;Fatemeh Hosseini;1,0;Städ;0,83;Grupp Centrum V
+1046;Rickard Nordin;1,0;Städ,Fastighet;0,91;Grupp Centrum Ö
+1047;Blessing Eze;0,75;Städ;0,25;Grupp Flygstaden
+1048;Lennart Gustafsson;1,0;Städ;0,96;Grupp Hallarna
+1049;Samira Khalil;1,0;Städ;0,80;Grupp Laholm
+1050;Hampus Lindberg;1,0;Städ,BL;0,12;Grupp Stena Södra
+1051;Eva-Lotta Persson;1,0;Städ;0,92;Grupp Centrum V
+1052;Ibrahim Toure;1,0;BL;0,85;Grupp Stena Södra
+1053;Kristina Hellström;0,75;Städ;0,90;Grupp Norr
+1054;Omar Benali;1,0;Städ;0,68;Grupp Nyhem Bilgrupp
+1055;Sven-Erik Mattsson;1,0;Övriga tjänster;0,99;Grupp Cafeterian
+1056;Natalia Kowalski;1,0;Övriga tjänster;0,77;Grupp Cafeterian
+1057;Bengt Arvidsson;1,0;BL;0,88;Grupp Stena Norr
+1058;Grace Mensah;1,0;BL;0,48;Grupp Övrigt BL
+1059;Rolf Sandström;0,5;BL;0,93;Grupp Övrigt BL
+1060;Ayaan Mohamed;1,0;Städ;0,82;Grupp Centrum V
+1061;Gunilla Forsberg;1,0;Städ;0,94;Grupp Centrum Ö
+1062;Kevin Olsson;1,0;Städ;0,31;Grupp Flygstaden
+1063;Marianne Ivarsson;1,0;Städ,Fastighet;0,89;Grupp Hallarna
+1064;Abdul-Rashid Kone;0,75;Städ;0,75;Grupp Laholm
+1065;Elisabeth Dahl;1,0;Städ;0,97;Grupp Norr
+1066;Tomas Berglund;1,0;Städ,BL;0,86;Grupp ICA/Bilgrupp
+1067;Miriam Santos;1,0;Övriga tjänster;0,62;Grupp Cafeterian
+1068;Jan-Olof Eriksson;1,0;Övriga tjänster;0,95;Grupp Cafeterian
+1069;Annika Nyström;1,0;BL;0,88;Grupp Stena Södra
+1070;Philip Adeyemi;1,0;BL;0,79;Grupp Stena Södra
+1071;Carina Vestman;0,75;Städ;0,91;Grupp Centrum V
+1072;Marcus Lövgren;1,0;Städ;0,38;Grupp Flygstaden
+1073;Sofia Henriksson;1,0;Städ;0,93;Grupp Hallarna
+1074;Ali Rezaei;1,0;BL;0,84;Grupp Stena Norr
+1075;Inger Magnusson;1,0;Städ;0,96;Grupp Nyhem Bilgrupp
