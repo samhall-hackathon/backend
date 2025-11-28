@@ -13,7 +13,7 @@ ENV UV_PYTHON_DOWNLOADS=0
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock . 
+COPY pyproject.toml uv.lock /app/
 RUN uv sync
 ADD src /app/src
 
