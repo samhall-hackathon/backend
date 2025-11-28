@@ -12,18 +12,10 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 ENV UV_PYTHON_DOWNLOADS=0
 
 WORKDIR /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project --no-dev
 
+COPY pyproject.toml uv.lock . 
+RUN uv sync
 ADD src /app/src
-COPY uv.lock /app
-COPY pyproject.toml /app
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
-
 
 # Then, use a final image without uv
 FROM python:3.13-slim-bookworm
@@ -50,6 +42,6 @@ USER nonroot
 WORKDIR /app
 
 ARG PORT
-
+ARG GOOGLE_API_KEY
 # Run the FastAPI application by default
 CMD ["fastapi", "run", "--host", "0.0.0.0", "/app/src/main.py"]
