@@ -49,5 +49,7 @@ USER nonroot
 # Use `/app` as the working directory
 WORKDIR /app
 
+ARG PORT
+
 # Run the FastAPI application by default
 CMD ["fastapi", "run", "--host", "0.0.0.0", "/app/src/main.py"]
