@@ -39,7 +39,7 @@ def main():
                     if c.service in e.get_skills():
                         work[(e.id, c.customer_id, d, p)] = model.NewBoolVar(f"work_e{e.id}_c{c.customer_id}_d{d}_p{p}")
 
-    logging.info(f"Assembling decision variables")
+    print(f"Assembling decision variables: {len(work)}")
     # -------------------------------------------------------------------------
     # 3. Constraints
     # -------------------------------------------------------------------------
@@ -47,13 +47,16 @@ def main():
     # A. No Overlapping Shifts (At most one shift per day per employee)
     # This prevents an employee from working Morning AND Afternoon on the same day.
     # If double shifts are allowed, remove this constraint.
-    for e in employees.employees:
-        for c in customers.customers:
-            for d in range(num_days):
-                for p in periods:
-                    shift = work.get((e.id, c.customer_id, d, p))
-                    if shift is not None:
-                        model.AddAtMostOne(shift)
+    #for e in employees.employees:
+    #    for d in range(num_days):
+    #        for p in periods:
+    #            same_day_hour = []
+    #            for c in customers.customers:
+    #                shift = work.get((e.id, c.customer_id, d, p))
+    #                if shift is not None:
+    #                    same_day_hour.append(shift)
+    #            if same_day_hour:
+    #                model.AddAtMostOne(same_day_hour)
 
 
     # B. No overlaping employer
@@ -61,10 +64,13 @@ def main():
     for e in employees.employees:
         for c in customers.customers:
             for d in range(num_days):
+                all_periods = []
                 for p in periods:
                     shift = work.get((e.id, c.customer_id, d, p))
                     if shift is not None:
-                        model.Add(shift == 0)
+                        all_periods.append(shift)
+                if all_periods:
+                    model.Add(sum(all_periods) <= 1)
 
     # C. Contract Hours Requirement
     # Sum of all shifts worked * duration == contract_hours
@@ -92,35 +98,34 @@ def main():
     # -------------------------------------------------------------------------
     # 5. Output
     # -------------------------------------------------------------------------
-    if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-        print("Solution Found!\n")
-        print(f"{'Employee_id':<10} | {'Customer_id':<10} | {'Day':<10} | {'Period':<10}")
-        print("-" * 55)
-
-        # Iterate through time to print the schedule chronologically
-        for d in range(num_days):
-            for p in periods:
-                for e in employees.employees:
-                    for c in customers.customers:
-                        shift = work.get((e.id, c.customer_id, d, p))
-                        if shift is not None and solver.Value(shift):
-                            print(shift)
-            print("-" * 55) # Separator between days
-
-        print("\nSummary:")
-        for c in customers.customers:
-            for e in employees.employees:
-                shifts_assigned = 0
-                for d in range(num_days):
-                    for p in periods:
-                        shift = work.get((e.id, c.customer_id, d, p))
-                        if shift is not None and solver.Value(shift):
-                            shifts_assigned += 1
-                    if shifts_assigned > 0:
-                        print(f"{c.customer_name} ({c.service}): {shifts_assigned * 3} hours scheduled (Goal: {c.hours_per_week})")
-
-    else:
+    if status not in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
         print("No solution found. Check if the required hours fit into the available slots.")
+
+    print("Solution Found!\n")
+    print(f"{'Employee_id':<10} | {'Customer_id':<10} | {'Day':<10} | {'Period':<10}")
+    print("-" * 55)
+
+    # Iterate through time to print the schedule chronologically
+    for d in range(num_days):
+        for p in periods:
+            for e in employees.employees:
+                for c in customers.customers:
+                    shift = work.get((e.id, c.customer_id, d, p))
+                    if shift is not None and solver.Value(shift):
+                        print(shift)
+        print("-" * 55) # Separator between days
+
+    print("\nSummary:")
+    for c in customers.customers:
+        for e in employees.employees:
+            shifts_assigned = 0
+            for d in range(num_days):
+                for p in periods:
+                    shift = work.get((e.id, c.customer_id, d, p))
+                    if shift is not None and solver.Value(shift):
+                        shifts_assigned += 1
+                if shifts_assigned > 0:
+                    print(f"{c.customer_name} ({c.service}): {shifts_assigned * 3} hours scheduled (Goal: {c.hours_per_week})")
 
 if __name__ == '__main__':
     main()
