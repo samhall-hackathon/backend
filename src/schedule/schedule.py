@@ -36,10 +36,9 @@ def main():
                 # filter by period required from customer
                 for p in periods:
                     # filter by skills
-                    if c.service in e.get_skills():
+                    if c.service in e.get_skills() and c.hours_per_week > 0:
                         work[(e.id, c.customer_id, d, p)] = model.NewBoolVar(f"work_e{e.id}_c{c.customer_id}_d{d}_p{p}")
 
-    print(f"Assembling decision variables: {len(work)}")
     # -------------------------------------------------------------------------
     # 3. Constraints
     # -------------------------------------------------------------------------
@@ -73,25 +72,60 @@ def main():
                     model.Add(sum(all_periods) <= 1)
 
     # C. Contract Hours Requirement
-    # Sum of all shifts worked * duration == contract_hours
-    #for e in employees.employees:
-    #    employee_max_week_hours = e.get_hours_week()
-    #    employee_shifts = []
-    #    for c in customers.customers:
-    #        for d in range(num_days):
-    #            for p in periods:
-    #                shift = work.get((e.id, c.customer_id, d, p))
-    #                if shift is not None:
-    #                    employee_shifts.append(shift)
+    # Sum of all shifts worked * duration <= contract_hours
+    # We use a scaling factor to handle float hours in CP-SAT (which requires integers)
+    SCALING_FACTOR = 10 
+    
+    for e in employees.employees:
+        employee_max_week_hours = int(e.get_hours_week() * SCALING_FACTOR)
+        shifts_with_duration = []
+        for c in customers.customers:
+            for d in range(num_days):
+                for p in periods:
+                    shift = work.get((e.id, c.customer_id, d, p))
+                    if shift is not None:
+                        # Duration of this specific shift
+                        duration = int(c.hours_per_day * SCALING_FACTOR)
+                        shifts_with_duration.append(shift * duration)
 
-    #    model.Add(sum(employee_shifts) <= int(employee_max_week_hours))
+        if shifts_with_duration:
+            model.Add(sum(shifts_with_duration) <= employee_max_week_hours)
+
+    # D. Customer Demand Requirement
+    # Sum of shifts for a customer * duration <= customer_hours_per_week
+    for c in customers.customers:
+        customer_shifts = []
+        duration = int(c.hours_per_day * SCALING_FACTOR)
+        limit = int(c.hours_per_week * SCALING_FACTOR)
+        
+        for e in employees.employees:
+            for d in range(num_days):
+                for p in periods:
+                    shift = work.get((e.id, c.customer_id, d, p))
+                    if shift is not None:
+                         customer_shifts.append(shift * duration)
+        
+        if customer_shifts:
+            # We use <= to ensure we don't over-schedule. 
+            # Since we maximize shifts, the solver will try to get as close to the limit as possible.
+            # We allow a small buffer? No, let's try strict first.
+            model.Add(sum(customer_shifts) <= limit)
 
     # -------------------------------------------------------------------------
     # 4. Solver
     # -------------------------------------------------------------------------
+    # Objective: Maximize the number of shifts assigned
+    # We could also maximize hours, but maximizing shifts is a good proxy if shifts are similar.
+    # To maximize hours: model.Maximize(sum(shift * int(c.hours_per_day * SCALING_FACTOR) for (e_id, c_id, d, p), shift in work.items()))
+    # But we need to lookup c.hours_per_day.
+    # Let's just maximize shifts for now as a simple start.
+    model.Maximize(sum(work.values()))
+
     solver = cp_model.CpSolver()
     # Optional: Randomize search to get different valid schedules each run
     solver.parameters.random_seed = random.randint(0, 100)
+    #solver.parameters.log_search_progress = True
+    solver.parameters.max_time_in_seconds = 10.0
     
     status = solver.Solve(model)
 
@@ -100,10 +134,10 @@ def main():
     # -------------------------------------------------------------------------
     if status not in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
         print("No solution found. Check if the required hours fit into the available slots.")
-
+        return
     print("Solution Found!\n")
-    print(f"{'Employee_id':<10} | {'Customer_id':<10} | {'Day':<10} | {'Period':<10}")
-    print("-" * 55)
+    print(f"{'Employee':<25} | {'Customer':<40} | {'Day':<5} | {'Period':<10} | {'Hours':<5}")
+    print("-" * 70)
 
     # Iterate through time to print the schedule chronologically
     for d in range(num_days):
@@ -112,20 +146,21 @@ def main():
                 for c in customers.customers:
                     shift = work.get((e.id, c.customer_id, d, p))
                     if shift is not None and solver.Value(shift):
-                        print(shift)
-        print("-" * 55) # Separator between days
+                        print(f"{e.name:<25} | {c.customer_name:<40} | {d:<5} | {p:<10} | {c.hours_per_day:<5}")
+        print("-" * 70) # Separator between days
 
     print("\nSummary:")
     for c in customers.customers:
+        total_hours_scheduled = 0
         for e in employees.employees:
-            shifts_assigned = 0
             for d in range(num_days):
                 for p in periods:
                     shift = work.get((e.id, c.customer_id, d, p))
                     if shift is not None and solver.Value(shift):
-                        shifts_assigned += 1
-                if shifts_assigned > 0:
-                    print(f"{c.customer_name} ({c.service}): {shifts_assigned * 3} hours scheduled (Goal: {c.hours_per_week})")
+                        total_hours_scheduled += c.hours_per_day
+        
+        if total_hours_scheduled > 0:
+            print(f"{c.customer_name} ({c.service}): {total_hours_scheduled} hours scheduled (Goal: {c.hours_per_week})")
 
 if __name__ == '__main__':
     main()
