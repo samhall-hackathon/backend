@@ -43,18 +43,16 @@ def create_new_schedule(version: str, customers: Customers, employees: Employees
 
     # B. Contract Hours Requirement
     # Sum of all shifts worked * duration <= contract_hours
-    # We use a scaling factor to handle float hours in CP-SAT (which requires integers)
-    SCALING_FACTOR = 10 
-    
+    # We use a scaling factor to handle float hours in CP-SAT (which requires integers)    
     for e in employees.employees:
-        employee_max_week_hours = int(e.employment_rate * SCALING_FACTOR)
+        employee_max_week_hours = int(e.get_hours_week())
         shifts_with_duration = []
         for c in customers.customers:
             for d in range(num_days):
                 shift = work.get((e.id, c.id, d))
                 if shift is not None:
                     # Duration of this specific shift
-                    duration = int(c.weekly_hours * SCALING_FACTOR)
+                    duration = int(c.weekly_hours)
                     shifts_with_duration.append(shift * duration)
 
         if shifts_with_duration:
@@ -64,8 +62,8 @@ def create_new_schedule(version: str, customers: Customers, employees: Employees
     # Sum of shifts for a customer * duration <= customer_hours_per_week
     for c in customers.customers:
         customer_shifts = []
-        duration = int(c.weekly_hours * SCALING_FACTOR)
-        limit = int(c.weekly_hours * SCALING_FACTOR)
+        duration = int(c.weekly_hours)
+        limit = int(c.weekly_hours)
         
         for e in employees.employees:
             for d in range(num_days):

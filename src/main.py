@@ -30,7 +30,6 @@ def schedule():
     """
     Creates a new schedule based on the latest contract.
     """
-    import pdb; pdb.set_trace()
     employees = supabase.get_all_employes()
     customers = supabase.get_all_customers()
 
