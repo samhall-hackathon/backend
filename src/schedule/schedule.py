@@ -136,17 +136,17 @@ def main():
         print("No solution found. Check if the required hours fit into the available slots.")
         return
     print("Solution Found!\n")
-    print(f"{'Employee':<25} | {'Customer':<40} | {'Day':<5} | {'Period':<10} | {'Hours':<5}")
+    print(f"{'Employee':<20} | {'Customer':<35} | {'Day':<2} | {'Period':<10} | {'Hours':<5}")
     print("-" * 70)
 
     # Iterate through time to print the schedule chronologically
     for d in range(num_days):
-        for p in periods:
-            for e in employees.employees:
-                for c in customers.customers:
+        for e in employees.employees:
+            for c in customers.customers:
+                for p in periods:
                     shift = work.get((e.id, c.customer_id, d, p))
                     if shift is not None and solver.Value(shift):
-                        print(f"{e.name:<25} | {c.customer_name:<40} | {d:<5} | {p:<10} | {c.hours_per_day:<5}")
+                        print(f"{e.name:<20} | {c.customer_name:<35} | {d:<2} | {p:<10} | {c.hours_per_day:<5}")
         print("-" * 70) # Separator between days
 
     print("\nSummary:")
