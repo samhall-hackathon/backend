@@ -1,15 +1,11 @@
 from ortools.sat.python import cp_model
-from parse import parse_employees, parse_customers
 import random
+from src.schedule.model import Customers, Employees, Schedule
 
-def main():
+def create_new_schedule(version: str, customers: Customers, employees: Employees) -> Schedule:
     # -------------------------------------------------------------------------
     # 1. Data Setup
     # -------------------------------------------------------------------------
-    
-    customers = parse_customers()
-    employees = parse_employees()
-
     # We define the shift length to calculate total hours. 
     # Let's assume a standard shift is 6 hours for this example to make the math clean 
     # (e.g., 30 hours = 5 shifts).
@@ -26,8 +22,8 @@ def main():
     for e in employees.employees:
         for c in customers.customers:
             for d in range(num_days):
-                if c.service in e.get_skills() and c.hours_per_week > 0:
-                    work[(e.id, c.customer_id, d)] = model.NewBoolVar(f"work_e{e.id}_c{c.customer_id}_d{d}")
+                if c.service_type in e.skills and c.weekly_hours > 0:
+                    work[(e.id, c.id, d)] = model.NewBoolVar(f"work_e{e.id}_c{c.id}_d{d}")
 
     # -------------------------------------------------------------------------
     # 3. Constraints
@@ -39,7 +35,7 @@ def main():
         for d in range(num_days):
             shifts_in_day = []
             for c in customers.customers:
-                shift = work.get((e.id, c.customer_id, d))
+                shift = work.get((e.id, c.id, d))
                 if shift is not None:
                     shifts_in_day.append(shift)
             if shifts_in_day:
@@ -51,14 +47,14 @@ def main():
     SCALING_FACTOR = 10 
     
     for e in employees.employees:
-        employee_max_week_hours = int(e.get_hours_week() * SCALING_FACTOR)
+        employee_max_week_hours = int(e.employment_rate * SCALING_FACTOR)
         shifts_with_duration = []
         for c in customers.customers:
             for d in range(num_days):
-                shift = work.get((e.id, c.customer_id, d))
+                shift = work.get((e.id, c.id, d))
                 if shift is not None:
                     # Duration of this specific shift
-                    duration = int(c.hours_per_day * SCALING_FACTOR)
+                    duration = int(c.weekly_hours * SCALING_FACTOR)
                     shifts_with_duration.append(shift * duration)
 
         if shifts_with_duration:
@@ -68,12 +64,12 @@ def main():
     # Sum of shifts for a customer * duration <= customer_hours_per_week
     for c in customers.customers:
         customer_shifts = []
-        duration = int(c.hours_per_day * SCALING_FACTOR)
-        limit = int(c.hours_per_week * SCALING_FACTOR)
+        duration = int(c.weekly_hours * SCALING_FACTOR)
+        limit = int(c.weekly_hours * SCALING_FACTOR)
         
         for e in employees.employees:
             for d in range(num_days):
-                shift = work.get((e.id, c.customer_id, d))
+                shift = work.get((e.id, c.id, d))
                 if shift is not None:
                      customer_shifts.append(shift * duration)
         
@@ -105,44 +101,22 @@ def main():
     # 5. Output
     # -------------------------------------------------------------------------
     if status not in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
-        print("No solution found. Check if the required hours fit into the available slots.")
-        return
-    print("Solution Found!\n")
-    print(f"{'Employee':<20} | {'Customer':<35} | {'Day':<2} | {'Period':<10} | {'Hours':<5}")
-    print("-" * 70)
-
+        raise Exception("No solution found. Check if the required hours fit into the available slots.")
+    
     # Iterate through time to print the schedule chronologically
+    schedule = []
     for d in range(num_days):
         for e in employees.employees:
             for c in customers.customers:
-                shift = work.get((e.id, c.customer_id, d))
+                shift = work.get((e.id, c.id, d))
                 if shift is not None and solver.Value(shift):
-                    print(f"{e.name:<20} | {c.customer_name:<35} | {d:<2} | {c.required_period:<10} | {c.hours_per_day:<5}")
-        print("-" * 70) # Separator between days
-
-    print("\nCustomer Summary:")
-    for c in customers.customers:
-        total_hours_scheduled = 0
-        for e in employees.employees:
-            for d in range(num_days):
-                shift = work.get((e.id, c.customer_id, d))
-                if shift is not None and solver.Value(shift):
-                    total_hours_scheduled += c.hours_per_day
-        
-        if total_hours_scheduled > 0:
-            print(f"{c.customer_name} ({c.service}): {total_hours_scheduled} hours scheduled (Goal: {c.hours_per_week})")
-
-    print("\nEmployee Summary:")
-    for e in employees.employees:
-        total_hours_scheduled = 0
-        for c in customers.customers:
-            for d in range(num_days):
-                shift = work.get((e.id, c.customer_id, d))
-                if shift is not None and solver.Value(shift):
-                    total_hours_scheduled += c.hours_per_day
-        
-        if total_hours_scheduled > 0:
-            print(f"{e.name} ({e.position}): {total_hours_scheduled} hours scheduled (Goal: {e.get_hours_week()})")
-
-if __name__ == '__main__':
-    main()
+                    schedule.append(Schedule(
+                        version=version,
+                        employee_id=str(e.id),
+                        customer_id=str(c.id),
+                        week_day=d,
+                        period=c.shift_requirement,
+                        hours_per_day=c.daily_hours,
+                        
+                    ))
+    return schedule

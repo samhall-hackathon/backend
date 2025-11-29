@@ -1,43 +1,55 @@
 from pydantic import BaseModel, Field
+import uuid
 
 class Customer(BaseModel):
     """
     Entity representing customer and its requirements
     """
-    customer_id: str = Field(description="ID of the customer")
-    customer_name: str = Field(description="Name of the customer")
-    required_period: str = Field(description="required period")
-    hours_per_week: float = Field(description="Amount of hours per week")
-    hours_per_day: float = Field(description="Hours per day")
+    id: uuid.UUID = Field(description="ID of the customer")
+    company_name: str = Field(description="Name of the customer")
+    shift_requirement: str = Field(description="required period")
+    weekly_hours: float = Field(description="Amount of hours per week")
+    daily_hours: float = Field(description="Hours per day")
     days_per_week: int = Field(description="Days per week needed")
-    amount_of_FTE: float = Field(description="Amount of fulltime employees needed")
-    
-    group: str = Field(description="Group beloning")
-    service: str = Field(description="Type of service needed")
+    fte: float = Field(description="Amount of fulltime employees needed")
+    days_of_week: list[str] = Field(description="Days the customer requires work")
+    region: str = Field(description="Group beloning")
+    service_type: str = Field(description="Type of service needed")
 
 class Employee(BaseModel):
     """
     Entity representing an employee
     """
-    id: str = Field(description="ID of the employee")
+    id: uuid.UUID = Field(description="ID of the employee")
     name: str = Field(description="Name of the employee")
-    working_hours_per_week: float = Field(description="Working hours per week for the employee")
-    position: str = Field(description="Position")
-    competence_ratio: float = Field(description="Maximum working hours per day for the employee")
-    group: str = Field(description="Days the employee is available to work")
+    employment_rate: float = Field(description="Working hours per week for the employee")
+    skills: list[str] = Field(description="Position")
+    capacity_factor: float = Field(description="Maximum working hours per day for the employee")
+    #group: str = Field(description="Days the employee is available to work")
 
     def get_hours_week(self) -> float:
         """
         Returns the amount of hours the employee is working per week
         """
-        return self.working_hours_per_week * 40
+        return self.employment_rate * 40
     
     def get_skills(self) -> list[str]:
         """
         Returns the skills of the employee
         """
-        return self.position.split(',')
+        return self.skills
 
+
+class Schedule(BaseModel):
+    """
+    Entity representing a schedule
+    """
+    version: int = Field(description="Version of the schedule")
+    customer_id: str = Field(description="ID of the customer")
+    employee_id: str = Field(description="ID of the employee")
+    week_day: int = Field(description="Day of the week")
+    period: str = Field(description="Period of the day")
+    hours_per_day: float = Field(description="Hours worked per day")
 
 class Employees(BaseModel):
     """

@@ -1,5 +1,5 @@
 import csv
-from model import Customer, Employee, Customers, Employees
+from src.schedule.model import Customer, Employee, Customers, Employees
 
 def parse_customers() -> Customers: 
     customer_list: list[Customer] = []
