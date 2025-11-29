@@ -25,3 +25,46 @@ class Employee(BaseModel):
     position: str = Field(description="Position")
     competence_ratio: float = Field(description="Maximum working hours per day for the employee")
     group: str = Field(description="Days the employee is available to work")
+
+    def get_hours_week(self) -> float:
+        """
+        Returns the amount of hours the employee is working per week
+        """
+        return self.working_hours_per_week * 40
+    
+    def get_skills(self) -> list[str]:
+        """
+        Returns the skills of the employee
+        """
+        return self.position.split(',')
+
+
+class Employees(BaseModel):
+    """
+    Entity representing a list of employees
+    """
+    employees: list[Employee] = []
+    
+    def get_all_groups(self) -> list[str]:
+        """
+        Returns a list of all groups the employees are available to work
+        """
+        return list(set([e.group for e in self.employees]))
+
+    def get_all_skills(self) -> list[str]:
+        """
+        Returns a list of all skills the employees are available to work
+        """
+        return list(set([e.position for e in self.employees]))
+
+class Customers(BaseModel):
+    """
+    Entity representing a list of customers
+    """
+    customers: list[Customer] = []
+    
+    def get_all_periods(self) -> list[str]:
+        """
+        Returns a list of all periods the customers are available to work
+        """
+        return list(set([c.required_period for c in self.customers]))

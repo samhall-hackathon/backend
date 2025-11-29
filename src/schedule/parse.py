@@ -1,9 +1,9 @@
 import csv
-from model import Customer, Employee
+from model import Customer, Employee, Customers, Employees
 
-def parse_customers() -> list[Customer]: 
+def parse_customers() -> Customers: 
     customer_list: list[Customer] = []
-    with open('Kundplaneringsdata_a.csv', newline='') as csvfile:
+    with open('static/Kundplaneringsdata_a.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
 
         for row in reader:
@@ -19,12 +19,12 @@ def parse_customers() -> list[Customer]:
                 group=row['Gruppering'],
                 service=row['Tjänst']
             ))
-    return customer_list
+    return Customers(customers=customer_list)
 
 
-def parse_employees() -> list[Employee]: 
+def parse_employees() -> Employees: 
     employee_list: list[Employee] = []
-    with open('Medarbetare.csv', newline='') as csvfile:
+    with open('static/Medarbetare.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
 
         for row in reader:
@@ -36,4 +36,4 @@ def parse_employees() -> list[Employee]:
                 competence_ratio=float(row['Kapacitetsfaktor'].replace(',', '.')),
                 group=row['Grupp']
             ))
-    return employee_list
+    return Employees(employees=employee_list)
