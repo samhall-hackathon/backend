@@ -52,7 +52,7 @@ def create_new_schedule(version: str, customers: Customers, employees: Employees
                 shift = work.get((e.id, c.id, d))
                 if shift is not None:
                     # Duration of this specific shift
-                    duration = int(c.weekly_hours)
+                    duration = int(c.daily_hours)
                     shifts_with_duration.append(shift * duration)
 
         if shifts_with_duration:
@@ -62,7 +62,7 @@ def create_new_schedule(version: str, customers: Customers, employees: Employees
     # Sum of shifts for a customer * duration <= customer_hours_per_week
     for c in customers.customers:
         customer_shifts = []
-        duration = int(c.weekly_hours)
+        duration = int(c.daily_hours)
         limit = int(c.weekly_hours)
         
         for e in employees.employees:
