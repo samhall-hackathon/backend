@@ -11,6 +11,10 @@ def main():
     customers = parse_customers()
     employees = parse_employees()
 
+    # REDUCE DATA SIZE
+    customers.customers = list(filter(lambda c: c.required_period not in  ["Hela dagen", "När som under dagen"], customers.customers))[:10]
+    employees.employees = employees.employees[:10]
+
     # We define the shift length to calculate total hours. 
     # Let's assume a standard shift is 6 hours for this example to make the math clean 
     # (e.g., 30 hours = 5 shifts).
@@ -43,35 +47,20 @@ def main():
     # 3. Constraints
     # -------------------------------------------------------------------------
 
-    # A. No Overlapping Shifts (At most one shift per day per employee)
-    # This prevents an employee from working Morning AND Afternoon on the same day.
-    # If double shifts are allowed, remove this constraint.
-    #for e in employees.employees:
-    #    for d in range(num_days):
-    #        for p in periods:
-    #            same_day_hour = []
-    #            for c in customers.customers:
-    #                shift = work.get((e.id, c.customer_id, d, p))
-    #                if shift is not None:
-    #                    same_day_hour.append(shift)
-    #            if same_day_hour:
-    #                model.AddAtMostOne(same_day_hour)
-
-
-    # B. No overlaping employer
+    # A. No overlaping employer
     # This prevents an employee from working two companies at the same time.
     for e in employees.employees:
-        for c in customers.customers:
-            for d in range(num_days):
-                all_periods = []
-                for p in periods:
+        for d in range(num_days):
+            for p in periods:
+                shifts_in_period = []
+                for c in customers.customers:
                     shift = work.get((e.id, c.customer_id, d, p))
                     if shift is not None:
-                        all_periods.append(shift)
-                if all_periods:
-                    model.Add(sum(all_periods) <= 1)
+                        shifts_in_period.append(shift)
+                if shifts_in_period:
+                    model.Add(sum(shifts_in_period) <= 1)
 
-    # C. Contract Hours Requirement
+    # B. Contract Hours Requirement
     # Sum of all shifts worked * duration <= contract_hours
     # We use a scaling factor to handle float hours in CP-SAT (which requires integers)
     SCALING_FACTOR = 10 
@@ -91,7 +80,7 @@ def main():
         if shifts_with_duration:
             model.Add(sum(shifts_with_duration) <= employee_max_week_hours)
 
-    # D. Customer Demand Requirement
+    # C. Customer Demand Requirement
     # Sum of shifts for a customer * duration <= customer_hours_per_week
     for c in customers.customers:
         customer_shifts = []
@@ -125,7 +114,7 @@ def main():
     # Optional: Randomize search to get different valid schedules each run
     solver.parameters.random_seed = random.randint(0, 100)
     #solver.parameters.log_search_progress = True
-    solver.parameters.max_time_in_seconds = 10.0
+    solver.parameters.max_time_in_seconds = 60.0
     
     status = solver.Solve(model)
 
@@ -149,7 +138,7 @@ def main():
                         print(f"{e.name:<20} | {c.customer_name:<35} | {d:<2} | {p:<10} | {c.hours_per_day:<5}")
         print("-" * 70) # Separator between days
 
-    print("\nSummary:")
+    print("\nCustomer Summary:")
     for c in customers.customers:
         total_hours_scheduled = 0
         for e in employees.employees:
@@ -161,6 +150,19 @@ def main():
         
         if total_hours_scheduled > 0:
             print(f"{c.customer_name} ({c.service}): {total_hours_scheduled} hours scheduled (Goal: {c.hours_per_week})")
+
+    print("\nEmployee Summary:")
+    for e in employees.employees:
+        total_hours_scheduled = 0
+        for c in customers.customers:
+            for d in range(num_days):
+                for p in periods:
+                    shift = work.get((e.id, c.customer_id, d, p))
+                    if shift is not None and solver.Value(shift):
+                        total_hours_scheduled += c.hours_per_day
+        
+        if total_hours_scheduled > 0:
+            print(f"{e.name} ({e.position}): {total_hours_scheduled} hours scheduled (Goal: {e.get_hours_week()})")
 
 if __name__ == '__main__':
     main()
